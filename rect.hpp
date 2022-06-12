@@ -1,7 +1,7 @@
 #ifndef __RECT_HPP
 #define __RECT_HPP
 
-#include "figures.hpp"
+#include "figure.hpp"
 #include<iostream>
 
 
@@ -14,8 +14,7 @@ private:
     float m_heigth;
 
 public:
-    Rectangle() : m_x{0}, m_y{0}, m_heigth{0}, m_width{0} {};
-    Rectangle(float x, float y, float width, float heigth) : m_x{x}, m_y{y}, m_heigth{heigth}, m_width{width} {};
+    Rectangle(const char *type = "rect", float x = 0, float y = 0, float width = 0, float heigth = 0, const char *fill = "none", const char *stroke = "none", float strokeWidth = 0);
     ~Rectangle();
 };
 

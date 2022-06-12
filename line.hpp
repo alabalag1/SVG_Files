@@ -1,7 +1,7 @@
 #ifndef __LINE_HPP
 #define __LINE_HPP
 
-#include "figures.hpp"
+#include "figure.hpp"
 #include<iostream>
 
 
@@ -14,8 +14,7 @@ private:
     float m_y2;
 
 public:
-    Line() : m_x1{0}, m_y1{0}, m_x2{0}, m_y2{0} {};
-    Line(float x1, float y1, float x2, float y2) : m_x1{x1}, m_y1{y1}, m_x2{x2}, m_y2{y2} {};
+    Line(const char* type = "line", float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0, const char* fill = "none", const char* stroke = "none", float strokeWidth = 0);
     ~Line();
 };
 

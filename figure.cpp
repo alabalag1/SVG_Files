@@ -1,6 +1,9 @@
-#include "figures.hpp"
+#include "figure.hpp"
 #include<iostream>
 #include<cstring>
+
+Figure::Figure(const char *type, const char *fill, const char *stroke, float strokeWidth) {}
+
 
 void Figure::setFill(const char* fill)
 {

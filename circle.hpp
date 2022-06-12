@@ -1,7 +1,7 @@
 #ifndef __CIRCLE_HPP
 #define __CRICLE_HPP
 
-#include "figures.hpp"
+#include "figure.hpp"
 #include<iostream>
 
 
@@ -13,8 +13,7 @@ private:
     float m_r;
 
 public:
-    Circle() : m_cx{0},m_cy{0},m_r{0} {};
-    Circle(float cx, float cy, float r) : m_cx{cx}, m_cy{cy}, m_r{r} {};
+    Circle(const char* type = "circle", float cx = 0, float cy = 0, float r = 0, const char* fill = "none", const char* stroke = "none", float strokeWidth = 0);
     ~Circle();
 };
 
