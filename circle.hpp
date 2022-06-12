@@ -8,12 +8,12 @@
 class Circle : public Figure
 {
 private:
-    float m_cx;
-    float m_cy;
+    float m_x;
+    float m_y;
     float m_r;
 
 public:
-    Circle(const char* type = "circle", float cx = 0, float cy = 0, float r = 0, const char* fill = "none", const char* stroke = "none", float strokeWidth = 0);
+    Circle(const char* type = "circle", float x = 0, float y = 0, float r = 0, const char* fill = "none", const char* stroke = "none", float strokeWidth = 0);
     ~Circle();
 };
 
