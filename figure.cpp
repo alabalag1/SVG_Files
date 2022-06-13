@@ -37,11 +37,6 @@ void Figure::setStroke(const char* stroke)
 }
 
 
-std::ostream &operator<<(std::ostream &os, const Figure &fig)
-{
-    return os << fig.getType() << " " << fig.getFill() << " " << fig.getStroke() << " "  << fig.getStrokeWidth();
-}
-
 Figure::~Figure()
 {
     delete[] m_type;

@@ -3,6 +3,7 @@
 #include<vector>
 #include<string>
 #include<sstream>
+#include<memory>
 
 #include"figure.hpp"
 #include"circle.hpp"
@@ -32,7 +33,10 @@ int main()
         std::cout << "Enter operation: ";
         std::cin >> operation;
         if (operation == "exit")
+        {
+
             onExit = true;
+        }
         else if (operation == "open")
         {
             std::cin >> fileName;
@@ -53,7 +57,7 @@ int main()
                     found = true;
                 else
                 {
-                    if (line.find("rect", 0) != std::string::npos)
+                    if (line.find("rect", 0) != std::string::npos) //rectangle
                     {
                         std::string type = "rect";
 
@@ -137,19 +141,99 @@ int main()
                         strokeWidth[strokeWidthPos] = '\0';
 
 
-                        Rectangle *rect = new Rectangle("rectangle", convertToFloat(x), convertToFloat(y), convertToFloat(width), convertToFloat(heigth), fill, stroke, convertToFloat(strokeWidth));
-                        figures.push_back(rect);
+                        Rectangle rect("rectangle", convertToFloat(x), convertToFloat(y), convertToFloat(width), convertToFloat(heigth), fill, stroke, convertToFloat(strokeWidth));
+                        Figure *ptrToFigure;
+                        ptrToFigure = &rect;
+                        figures.push_back(ptrToFigure);
                     }
-                    if (line.find("circle", 0) != std::string::npos)
+
+                    else if (line.find("circle", 0) != std::string::npos) //circle
                     {
                         std::string type = "circle";
+
+                        //X
+                        size_t xPos1{line.find("x=", 0) + 3};
+                        size_t xPos2{line.find('"', xPos1)};
+                        size_t xPos{xPos2 - xPos1};
+                        char x[xPos + 1];
+                        for (size_t i = 0; i < xPos + 1 && (line.find("x",0) != std::string::npos); i++)
+                        {
+                            x[i] = line[xPos1++];
+                        }
+                        x[xPos] = '\0';
+
+                        //Y
+                        size_t yPos1{line.find("y", 0) + 3};
+                        size_t yPos2{line.find('"', yPos1)};
+                        size_t yPos{yPos2 - yPos1};
+                        char y[yPos + 1];
+                        for (size_t i = 0; i < yPos + 1 && (line.find("y",0)!=std::string::npos); i++)
+                        {
+                            y[i] = line[yPos1++];
+                        }
+                        y[yPos] = '\0';
+
+                        //R
+                        size_t rPos1{line.find("r", 0) + 3};
+                        size_t rPos2{line.find('"', rPos1)};
+                        size_t rPos{rPos2 - rPos1};
+                        char r[rPos + 1];
+                        for (size_t i = 0; i < rPos + 1 && (line.find("r",0)!=std::string::npos); i++)
+                        {
+                            r[i] = line[rPos1++];
+                        }
+                        r[rPos] = '\0';
+
+                        //Fill
+                        size_t FillPos1{line.find("fill", 0) + 6};
+                        size_t FillPos2{line.find('"', FillPos1)};
+                        size_t FillPos{FillPos2 - FillPos1};
+                        char fill[FillPos + 1];
+                        for (size_t i = 0; i < FillPos + 1 && (line.find("fill",0)!=std::string::npos); i++)
+                        {
+                            fill[i] = line[FillPos1++];
+                        }
+                        fill[FillPos] = '\0';
+
+                        //Stroke
+                        size_t StrokePos1{line.find("stroke", 0) + 8};
+                        size_t StrokePos2{line.find('"', StrokePos1)};
+                        size_t StrokePos{StrokePos2 - StrokePos1};
+                        char stroke[StrokePos + 1];
+                        for (size_t i = 0; i < StrokePos + 1 && (line.find("stroke",0)!=std::string::npos); i++)
+                        {
+                            stroke[i] = line[StrokePos1++];
+                        }
+                        stroke[StrokePos] = '\0';
+
+                        //StrokeWidth
+                        size_t strokeWidthPos1{line.find("stroke-width", 0) + 14};
+                        size_t strokeWidthPos2{line.find('"', strokeWidthPos1) - 1};
+                        size_t strokeWidthPos{strokeWidthPos2 - strokeWidthPos1};
+                        char strokeWidth[strokeWidthPos + 1];
+                        for (size_t i = 0; i < strokeWidthPos + 1 && (line.find("stroke-width",0)!=std::string::npos); i++)
+                        {
+                            strokeWidth[i] = line[strokeWidthPos1++];
+                        }
+                        strokeWidth[strokeWidthPos] = '\0';
+
+                        Circle circ("circle", convertToFloat(x), convertToFloat(y), convertToFloat(r), fill, stroke, convertToFloat(strokeWidth));
+                        Figure *ptrToFigure;
+                        ptrToFigure = &circ;
+                        figures.push_back(ptrToFigure);
                     }
                 }
                 getline(file, line);
             }
-            for (auto i = 0; i < figures.size(); i++)
-                std::cout << figures[i].Figure::print() << "\n";
             onExit = true;
+            for (size_t i = 0; i < figures.size(); i++)
+            {
+                figures[i]->print();
+            }
+            for (size_t i = 0; i < figures.size(); i++)
+            {
+                delete[] figures[i];
+            }
         }
     }
 }
