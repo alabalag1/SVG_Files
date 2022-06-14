@@ -6,7 +6,7 @@ Circle::Circle(const char *type, float x, float y, float r, const char *fill, co
 {
 }
 
-void Circle::print() const
+std::ostream& Circle::print(std::ostream& os) const
 {
-    std::cout << getType() << " " << m_x << " " << m_y << " " << m_r << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
+    os << getType() << " " << m_x << " " << m_y << " " << m_r << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
 }

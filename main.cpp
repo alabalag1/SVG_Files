@@ -12,7 +12,40 @@
 
 const unsigned MAX_SIZE = 25;
 
-float convertToFloat(std::string str)
+void save(std::string fileName, std::vector<Figure*> figures)
+{
+    std::ifstream file;
+    std::string line;
+    file.open(fileName, std::ios::in);
+    std::ofstream outFile("temp.txt");
+    if (!file.is_open())
+    {
+        std::cout << "\nError when opening file!\n";
+    }
+    else
+    {
+        bool foundSVG = false;
+        while (getline(file, line) && foundSVG == false)
+        {
+            if(line != "<svg>")
+            {
+                outFile << line << std::endl;
+                outFile << "<svg>";
+                for (size_t i; i < figures.size(); i++)
+                    outFile << figures[i];
+                foundSVG = true;
+            }
+        }
+    }
+    file.close();
+    outFile.close();
+    const char *fileN = fileName.c_str();
+    remove(fileN);
+    rename("temp.txt", fileN);
+    delete[] fileN;
+}
+
+float convertToFloat(char* str)
 {
     std::stringstream stream;
     stream << str;
@@ -30,6 +63,7 @@ int main()
     std::string fileName;
     std::string line;
     std::fstream file;
+    unsigned countOpenedFigures{0};
     while (onExit != true)
     {
         std::cout << "\nEnter operation: ";
@@ -378,6 +412,7 @@ int main()
                     }
                     getline(file, line);
                 }
+                countOpenedFigures = figures.size();
                 file.close();
             }
         }
@@ -471,31 +506,7 @@ int main()
         //TODO: fix save
         else if (operation == "save")
         {
-            file.open(fileName, std::ios::in);
-            std::ofstream outFile("temp.txt");
-            if (!file.is_open())
-            {
-                std::cout << "\nError when opening file!\n";
-            }
-            else
-            {
-                bool foundSVG = false;
-                while (getline(file, line) && foundSVG == false)
-                {
-                    if(line != "<svg>")
-                    {
-                        outFile << line << std::endl;
-                        outFile << "<svg>\n</svg>";
-                        foundSVG = true;
-                    }
-                }
-            }
-            file.close();
-            outFile.close();
-            const char *fileN = fileName.c_str();
-            remove(fileN);
-            rename("temp.txt", fileN);
-            delete[] fileN;
+            save(fileName,figures);
             /* bool foundSVG = false;
             while (getline(file, line) && foundSVG == false)
             {
@@ -515,7 +526,17 @@ int main()
         }
         else if (operation == "close")
         {
+            if(figures.size() != countOpenedFigures)
+            {
+                std::string YesNo;
+                std::cout << "You have unsaved changes. Do you want to save them? (yes/no)";
+                std::cin >> YesNo;
+                if(YesNo == "yes")
+                    operation = "save";  
+            }
+            }
             fileName.clear();
+            figures.erase(figures.begin(), figures.end());
             std::cout<<"\nFile closed successfully!\n";
         }
         //TODO: translate operation == stringstream horizontal= vertical=

@@ -20,7 +20,7 @@ public:
     char const* getStroke() const { return m_stroke; };
     float getStrokeWidth() const { return m_strokeWidth; };
 
-    virtual void print() const = 0;
+    virtual std::ostream& print(std::ostream& = std::cout) const = 0;
 
     void setType(const char *type);
     void setFill(const char *fill);
@@ -29,6 +29,7 @@ public:
 
     ~Figure();
 };
+std::ostream &operator<<(std::ostream &os, const Figure &figure) { return figure.print(os); };
 
 
 
