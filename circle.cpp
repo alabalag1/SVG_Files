@@ -8,5 +8,6 @@ Circle::Circle(const char *type, float x, float y, float r, const char *fill, co
 
 std::ostream& Circle::print(std::ostream& os) const
 {
-    os << getType() << " " << m_x << " " << m_y << " " << m_r << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
+    return os << getType() << " " << m_x << " " << m_y << " " << m_r << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
 }
+

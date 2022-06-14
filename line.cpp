@@ -6,5 +6,5 @@ Line::Line(const char *type, float x1, float y1, float x2, float y2, const char 
 
 std::ostream& Line::print(std::ostream& os) const
 {
-    os << getType() << " " << m_x1 << " " << m_y1 << " " << m_x2 << " " << m_y2 << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
+    return os << getType() << " " << m_x1 << " " << m_y1 << " " << m_x2 << " " << m_y2 << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
 }

@@ -33,6 +33,7 @@ void save(std::string fileName, std::vector<Figure*> figures)
                 outFile << "<svg>";
                 for (size_t i; i < figures.size(); i++)
                     outFile << figures[i];
+                outFile << "</svg>";
                 foundSVG = true;
             }
         }
@@ -57,7 +58,7 @@ float convertToFloat(char* str)
 
 int main()
 {
-    std::vector<Figure *> figures;
+    std::vector<Figure*> figures;
     std::string operation;
     bool onExit{0};
     std::string fileName;
@@ -70,7 +71,9 @@ int main()
         std::cin >> operation;
         if (operation == "exit")
         {
-            figures.erase(figures.begin(), figures.end());
+            for(auto f : figures)
+                delete f;
+            figures.clear();
             onExit = true;
         }
         else if (operation == "open")
@@ -431,7 +434,6 @@ int main()
         else if (operation == "erase")
         {
             int numberToErase{0};
-            std::cout << "Enter number to erase: ";
             std::cin >> numberToErase;
             --numberToErase;
             if (numberToErase > figures.size())
@@ -440,7 +442,7 @@ int main()
             }
             else
             {
-                std::cout << "'\nErased a " << figures[numberToErase]->getType() << " (" << numberToErase + 1 << ") \n";
+                std::cout << "\nErased a " << figures[numberToErase]->getType() << " (" << numberToErase + 1 << ") \n";
                 figures.erase(figures.begin() + numberToErase);
             }
         }
@@ -529,14 +531,15 @@ int main()
             if(figures.size() != countOpenedFigures)
             {
                 std::string YesNo;
-                std::cout << "You have unsaved changes. Do you want to save them? (yes/no)";
+                std::cout << "You have unsaved changes. Do you want to save them? (yes/no)\n";
                 std::cin >> YesNo;
                 if(YesNo == "yes")
-                    operation = "save";  
-            }
+                    save(fileName,figures);
             }
             fileName.clear();
-            figures.erase(figures.begin(), figures.end());
+            for(auto f : figures)
+                delete f;
+            figures.clear();
             std::cout<<"\nFile closed successfully!\n";
         }
         //TODO: translate operation == stringstream horizontal= vertical=

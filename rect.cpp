@@ -9,6 +9,6 @@ Rectangle::Rectangle(const char *type, float x, float y, float width, float heig
 
 std::ostream& Rectangle::print(std::ostream& os) const
 {
-    os << getType() << " "  << m_x << " "  << m_y << " "  << m_width << " "  << m_heigth << " "  << getFill() << " "  << getStroke() << " " << getStrokeWidth();
+    return os << getType() << " "  << m_x << " "  << m_y << " "  << m_width << " "  << m_heigth << " "  << getFill() << " "  << getStroke() << " " << getStrokeWidth();
 }
 

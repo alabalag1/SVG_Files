@@ -26,10 +26,10 @@ public:
     void setFill(const char *fill);
     void setStroke(const char *stroke);
     void setStrokeWidth(const float strokeWidth) { m_strokeWidth = strokeWidth; };
+    friend std::ostream &operator<<(std::ostream &os, const Figure& figure) { return figure.print(os); };
 
-    ~Figure();
+    virtual ~Figure();
 };
-std::ostream &operator<<(std::ostream &os, const Figure &figure) { return figure.print(os); };
 
 
 
