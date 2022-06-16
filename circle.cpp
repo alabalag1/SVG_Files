@@ -11,3 +11,9 @@ std::ostream& Circle::print(std::ostream& os) const
     return os << getType() << " " << m_x << " " << m_y << " " << m_r << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
 }
 
+
+std::ostream& Circle::printForSaving(std::ostream& os) const
+{
+    return os << getType() << " cx=" << '"' << m_x << '"' << " cy=" << '"' << m_y << '"' << " r=" << '"' << m_r << '"'
+              << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
+}

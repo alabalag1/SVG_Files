@@ -8,3 +8,9 @@ std::ostream& Line::print(std::ostream& os) const
 {
     return os << getType() << " " << m_x1 << " " << m_y1 << " " << m_x2 << " " << m_y2 << " " << getFill() << " " << getStroke() << " " << getStrokeWidth();
 }
+
+std::ostream& Line::printForSaving(std::ostream& os) const
+{
+    return os << getType() << " x1=" << '"' << m_x1 << '"' << " y1=" << '"' << m_y1 << '"' << " x2=" << '"' << m_x2 << '"' << " y2=" << '"' << m_y2 << '"'
+              << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
+}

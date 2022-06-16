@@ -12,3 +12,8 @@ std::ostream& Rectangle::print(std::ostream& os) const
     return os << getType() << " "  << m_x << " "  << m_y << " "  << m_width << " "  << m_heigth << " "  << getFill() << " "  << getStroke() << " " << getStrokeWidth();
 }
 
+std::ostream& Rectangle::printForSaving(std::ostream& os) const
+{
+    return os << getType() << " x=" << '"' << m_x << '"' << " y=" << '"' << m_y << '"' << " width=" << '"' << m_width << '"' << " height=" << '"' << m_heigth << '"'
+              << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
+}
