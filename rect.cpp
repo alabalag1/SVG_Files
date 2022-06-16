@@ -17,3 +17,10 @@ std::ostream& Rectangle::printForSaving(std::ostream& os) const
     return os << "rect x=" << '"' << m_x << '"' << " y=" << '"' << m_y << '"' << " width=" << '"' << m_width << '"' << " height=" << '"' << m_heigth << '"'
               << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
 }
+
+Rectangle& Rectangle::translate(float horizontal, float vertical)
+{
+    m_x += horizontal;
+    m_y += vertical;
+    return *this;
+}

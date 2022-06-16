@@ -100,24 +100,19 @@ void erase(std::vector<Figure*>& figures, bool& changes, bool openFile)
     }
 }
 
-const void print(std::vector<Figure*> figures, bool openFile)
+void print(std::vector<Figure*> figures)
 {
-    if(openFile == false)
-        std::cout << "No file is open!\n";
-    else
+    if (figures.empty() == false)
+    {
+        for (size_t i = 0; i < figures.size(); i++)
         {
-        if (figures.size() != 0)
-        {
-            for (size_t i = 0; i < figures.size(); i++)
-            {
             std::cout << i + 1 << ". ";
             figures[i]->print();
             std::cout << std::endl;
-            }
         }
-        else
-            std::cout << "There are no figures!\n";
     }
+    else
+        std::cout << "There are no figures!\n";
 }
 
 void close(std::string& fileName, std::vector<Figure*>& figures, bool& changes, bool& openFile)
@@ -129,7 +124,7 @@ void close(std::string& fileName, std::vector<Figure*>& figures, bool& changes, 
         if (changes == true)
         {
             std::string YesNo;
-            std::cout << "You have unsaved changes. Do you want to save them? (yes/no)\n";
+            std::cout << "You have unsaved changes. Do you want to save them? (yes/no): ";
             std::cin >> YesNo;
             if(YesNo == "yes")
             {
@@ -169,7 +164,6 @@ void close(std::string& fileName, std::vector<Figure*>& figures, bool& changes, 
                 remove(fileN);
                 rename("temp.txt", fileN);
                 delete[] fileN;
-                openFile = false;
                 std::cout << "Changes saved successfully!";
             }
         }
@@ -177,18 +171,19 @@ void close(std::string& fileName, std::vector<Figure*>& figures, bool& changes, 
         for(Figure* f : figures)
             delete f;
         figures.clear();
+        openFile = false;
         std::cout<<"\nFile closed successfully!\n";
     }
 }
 
-void saveAs(std::string fileName, std::vector<Figure*>& figures)
+void saveAs(std::string fileName, std::vector<Figure*> figures, bool& openFile, bool& changes)
 {
     std::ofstream outFile;
-    outFile.open(fileName);
+    outFile.open(fileName,std::ios::out);
     outFile << "<?xml version=" << '"' << "1.0" << '"' << " standalone=" << '"' << "no" << '"' << "?>\n"
             << "<!DOCTYPE svg PUBLIC " << '"' << "-//W3C//DTD SVG 1.1//EN" << '"' << "\n"
             << '"' << "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" << '"'
-            << "\n<svg>\n";
+            << ">\n<svg>\n";
     for (size_t i = 0; i < figures.size(); i++)
     {
         outFile << "<";
@@ -196,9 +191,13 @@ void saveAs(std::string fileName, std::vector<Figure*>& figures)
         outFile << " />\n";
     }
     outFile << "</svg>";
+    outFile.close();
+    openFile = true;
+    changes = false;
+    std::cout << "File " << fileName << " saved successfully!";
 }
 
-void save(std::string fileName, std::vector<Figure*>& figures, bool& changes, bool openFile)
+void save(std::string fileName, std::vector<Figure*> figures, bool& changes, bool openFile)
 {
     std::ifstream file;
     std::string line;
@@ -241,6 +240,7 @@ void save(std::string fileName, std::vector<Figure*>& figures, bool& changes, bo
         rename("temp.txt", fileN);
         delete[] fileN;
         changes = false;
+        std::cout << "File " << fileName << " saved successfully!";
     }
 }
 
@@ -263,7 +263,7 @@ int main()
     std::fstream file;
     bool changes{0};
     bool openFile{0};
-    while (onExit != true)
+    while (std::cin && onExit != true)
     {
         std::cout << "\nEnter operation: ";
         std::cin >> operation;
@@ -272,26 +272,34 @@ int main()
             if(openFile == true)
             {
                 std::string YesNo;
-                std::cout << "There is an open file! You need to close it before you exit! Do you want to close it? (yes/no)\n";
+                std::cout << "\nThere is an open file! You need to close it before you exit! Do you want to close it? (yes/no): ";
                 std::cin >> YesNo;
                 if(YesNo == "yes")
                 {
                     close(fileName, figures, changes,openFile);
                     openFile = false;
+                    for(auto f : figures)
+                    delete f;
+                    figures.clear();
+                    std::cout << "Goodbye! :)\n\n";
+                    onExit = true;
                 }
             }
-            for(auto f : figures)
-                delete f;
-            figures.clear();
-            std::cout << "Goodbye! :)\n\n";
-            onExit = true;
+            else
+            {
+                for(auto f : figures)
+                    delete f;
+                figures.clear();
+                std::cout << "Goodbye! :)\n\n";
+                onExit = true;
+            }
         }
         else if (operation == "open")
         {
             if(openFile == true)
             {
                 std::string YesNo;
-                std::cout << "There is another open file! You need to close it before you open another one! Do you want to close it? (yes/no)\n";
+                std::cout << "There is another open file! You need to close it before you open another one! Do you want to close it? (yes/no): ";
                 std::cin >> YesNo;
                 if(YesNo == "yes")
                 {
@@ -301,14 +309,17 @@ int main()
             }
             else
             {
-                openFile = true;
                 std::cin >> fileName;
                 file.open(fileName, std::ios::in);
                 if (!file.is_open())
+                {
                     std::cout << "Erorr when opening file!\n";
+                    openFile = false;
+                }
                 else
                 {
                     std::cout << "Successfully opened " << fileName << "!\n";
+                    openFile = true;
                     /* while (getline(file, line) && foundSVG == false)    // Used stackoverflow for this snippet of code for moving the cursor to where figures in svg file are
                     {                                                   //
                         if (line.find("<svg>", 0) != std::string::npos) //
@@ -642,7 +653,7 @@ int main()
         }
         else if (operation == "print")
         {
-            print(figures, openFile);
+            print(figures);
         }
         else if (operation == "erase")
         {
@@ -674,10 +685,83 @@ int main()
                       << "\nabout            prints information about creator\n"
                       << "\nexit             exits this program\n\n";
         }
-        
-        
-        
-        
+        else if (operation == "saveas")
+        {
+            std::string fileN;
+            std::cin >> fileN;
+            saveAs(fileN, figures, openFile, changes);
+        }
+        else if (operation == "translate")
+        {
+            std::string addition;
+            std::getline(std::cin, addition);
+            char horizontal[MAX_SIZE];
+            char vertical[MAX_SIZE];
+            char figureNumber[MAX_SIZE];
+            if ((addition.find("vertical=", 0) != std::string::npos) && (addition.find("horizontal=", 0) != std::string::npos))
+            {
+                size_t hFirstPos{addition.find("horizontal=", 0) + 11};
+                size_t hLastPos{0};
+                if(addition.find(' ',hFirstPos) == std::string::npos)
+                    hLastPos = addition.length();
+                else
+                    hLastPos = addition.find(' ', hFirstPos);
+                size_t hPos{hLastPos - hFirstPos};
+                size_t vFirstPos{addition.find("vertical=", 0) + 9};
+                size_t vLastPos{0};
+                if(addition.find(' ',vFirstPos) == std::string::npos)
+                    vLastPos = addition.length();
+                else
+                    vLastPos = addition.find(' ', vFirstPos);
+                size_t vPos{vLastPos - vFirstPos};
+                for (size_t i = 0; i < vPos; i++)
+                    vertical[i] = addition[vFirstPos++];
+                for (size_t i = 0; i < hPos; i++)
+                    horizontal[i] = addition[hFirstPos++];
+                vertical[vPos] = '\0';
+                horizontal[hPos] = '\0';
+
+                if ((addition[vLastPos + 1] >= '0' && addition[vLastPos + 1] <= '9') || (addition[hLastPos + 1] >= '0' && addition[hLastPos + 1] <= '9'))
+                {
+                    
+                    size_t figureNumberLastPos = addition.find_last_not_of(' ');
+                    size_t figureNumberFirstPos = addition.rfind(' ',figureNumberLastPos) + 1;
+                    size_t figureNumberPos = figureNumberLastPos - figureNumberFirstPos;
+                    for (size_t i = 0; i < figureNumberPos; i++)
+                        figureNumber[i] = addition[figureNumberFirstPos++];
+                    figureNumber[figureNumberPos] = '\0';
+                    size_t figNum = convertToFloat(figureNumber) - 1;
+                    figures[convertToFloat(figureNumber) - 1]->translate(convertToFloat(horizontal), convertToFloat(vertical));
+                    std::cout << "Translated " << figures[convertToFloat(figureNumber) - 1]->getType() << " ("<<figureNumber<<") " 
+                            << "by horizontal: " << horizontal << " and vertical: " << vertical;
+
+                }
+ /*                else if(addition[hLastPos + 1] == ' ')
+                {
+                    size_t figureNumberFirstPos = hLastPos + 2;
+                    size_t figureNumberLastPos = addition.find_last_of(addition,figureNumberFirstPos);
+                    size_t figureNumberPos = figureNumberLastPos - figureNumberFirstPos;
+                    for (size_t i = 0; i < figureNumberPos; i++)
+                        figureNumber[i] = addition[figureNumberFirstPos++];
+                    figures[convertToFloat(figureNumber)]->translate(convertToFloat(horizontal), convertToFloat(vertical));
+                    std::cout << "Translated " << figures[convertToFloat(figureNumber)]->getType() << " ("<<figureNumber<<") " 
+                            << "by horizontal: " << horizontal << " and vertical: " << vertical;
+                } */
+                else
+                {
+                    for (size_t i = 0; i < figures.size(); i++)
+                        figures[i]->translate(convertToFloat(horizontal), convertToFloat(vertical));
+                    std::cout << "Translated all figures by horizontal: " << horizontal << " and vertical: " << vertical;
+                }
+                changes = true;
+            }
+            else
+                std::cout << "Invalid option!\n";
+            // Unfortunately couldn't use this code, because i'd have to change the whole way the interactive commands work ;(
+        }
+        else
+            std::cout << "Invalid command!\n";
+
         //TODO: translate operation == stringstream horizontal= vertical=
     }
 }

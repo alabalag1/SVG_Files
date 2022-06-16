@@ -14,3 +14,12 @@ std::ostream& Line::printForSaving(std::ostream& os) const
     return os << getType() << " x1=" << '"' << m_x1 << '"' << " y1=" << '"' << m_y1 << '"' << " x2=" << '"' << m_x2 << '"' << " y2=" << '"' << m_y2 << '"'
               << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
 }
+
+Line& Line::translate(float horizontal, float vertical)
+{
+    m_x1 += horizontal;
+    m_x2 += horizontal;
+    m_y1 += vertical;
+    m_y2 += vertical;
+    return *this;
+}

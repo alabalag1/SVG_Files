@@ -22,6 +22,7 @@ public:
 
     virtual std::ostream& print(std::ostream& = std::cout) const = 0;
     virtual std::ostream& printForSaving(std::ostream& os) const = 0;
+    virtual Figure& translate(float horizontal, float vertical) = 0;
 
     void setType(const char *type);
     void setFill(const char *fill);

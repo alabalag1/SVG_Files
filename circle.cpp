@@ -17,3 +17,10 @@ std::ostream& Circle::printForSaving(std::ostream& os) const
     return os << getType() << " cx=" << '"' << m_x << '"' << " cy=" << '"' << m_y << '"' << " r=" << '"' << m_r << '"'
               << " fill=" << '"' << getFill() << '"' << " stroke=" << '"' << getStroke() << '"' << " stroke-width=" << '"' << getStrokeWidth() << '"';
 }
+
+Circle& Circle::translate(float horizontal, float vertical)
+{
+    m_x += horizontal;
+    m_y += vertical;
+    return *this;
+}
