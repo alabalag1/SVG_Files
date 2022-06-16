@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include<cstdio>
 #include <memory>
 
 #include "figure.hpp"
@@ -12,7 +13,7 @@
 
 const unsigned MAX_SIZE = 25;
 
-void save(std::string fileName, std::vector<Figure*> figures)
+void save(std::string fileName, std::vector<Figure*>& figures)
 {
     std::ifstream file;
     std::string line;
@@ -27,20 +28,30 @@ void save(std::string fileName, std::vector<Figure*> figures)
         bool foundSVG = false;
         while (getline(file, line) && foundSVG == false)
         {
-            if(line != "<svg>")
+            if(line.find("<svg>",0) != std::string::npos)
             {
-                outFile << line << std::endl;
-                outFile << "<svg>";
-                for (size_t i; i < figures.size(); i++)
-                    outFile << figures[i];
+                outFile << "<svg>" << std::endl;
+                for (size_t i = 0; i < figures.size(); i++)
+                {
+                    outFile << "<";
+                    if (strcmp(figures[i]->getType(), "rectangle") == 0)
+                        figures[i]->setType("rect");
+                    figures[i]->printForSaving(outFile);
+                    outFile << " />" << std::endl;
+                }
                 outFile << "</svg>";
                 foundSVG = true;
+            }
+            else
+            {
+                outFile << line << std::endl;
             }
         }
     }
     file.close();
     outFile.close();
-    const char *fileN = fileName.c_str();
+    char* fileN = new char[fileName.length() + 1];
+    strcpy(fileN, fileName.c_str());
     remove(fileN);
     rename("temp.txt", fileN);
     delete[] fileN;
@@ -54,7 +65,6 @@ float convertToFloat(char* str)
     stream >> buffer;
     return buffer;
 }
-// TODO: fix memory leaks for erasing and deleting figures!!!
 
 int main()
 {
@@ -64,7 +74,7 @@ int main()
     std::string fileName;
     std::string line;
     std::fstream file;
-    unsigned countOpenedFigures{0};
+    bool changes{0};
     while (onExit != true)
     {
         std::cout << "\nEnter operation: ";
@@ -415,7 +425,6 @@ int main()
                     }
                     getline(file, line);
                 }
-                countOpenedFigures = figures.size();
                 file.close();
             }
         }
@@ -443,10 +452,10 @@ int main()
             else
             {
                 std::cout << "\nErased a " << figures[numberToErase]->getType() << " (" << numberToErase + 1 << ") \n";
+                changes = true;
                 figures.erase(figures.begin() + numberToErase);
             }
         }
-        // TODO: fix create
         else if (operation == "create")
         {
             std::cout << "\nFormat for Rectangle: type x y width height fill stroke stroke-width\nFormat for Circle:    type x y r fill stroke stroke-width\nFormat for Line:      type x1 y1 x2 y2 fill stroke stroke-width\n";
@@ -467,6 +476,7 @@ int main()
                 std::cin.getline(stroke, MAX_SIZE, ' ');
                 std::cin >> strokeWidth;
                 figures.push_back(new Rectangle("rectangle", x, y, width, height, fill, stroke, strokeWidth));
+                changes = true;
                 std::cout << "Successfully created a " << type << " (" << figures.size() << ") !\n";
             }
             else if (type == "circle")
@@ -483,6 +493,7 @@ int main()
                 std::cin.getline(stroke, MAX_SIZE, ' ');
                 std::cin >> strokeWidth;
                 figures.push_back(new Circle("circle", x, y, r, fill, stroke, strokeWidth));
+                changes = true;
                 std::cout << "\nSuccessfully created a " << type << " (" << figures.size() << ") !\n";
             }
             else if (type == "line")
@@ -500,35 +511,19 @@ int main()
                 std::cin.getline(stroke, MAX_SIZE, ' ');
                 std::cin >> strokeWidth;
                 figures.push_back(new Line("line", x1, y1, x2, y2, fill, stroke, strokeWidth));
+                changes = true;
                 std::cout << "Successfully created a " << type << " (" << figures.size() << ") !\n";
             }
             else
                 std::cout << "\nInvalid Figure!";
         }
-        //TODO: fix save
         else if (operation == "save")
         {
             save(fileName,figures);
-            /* bool foundSVG = false;
-            while (getline(file, line) && foundSVG == false)
-            {
-                if (line.find("<svg>", 0) != std::string::npos)
-                    foundSVG = true;
-            }
-            foundSVG = false;
-            while (foundSVG == false)
-            {
-                if (line.find("</svg>", 0) != std::string::npos)
-                    foundSVG = true;
-                else
-                {
-                    file << '\0';
-                }
-                getline(file, line); */
         }
         else if (operation == "close")
         {
-            if(figures.size() != countOpenedFigures)
+            if(changes == true)
             {
                 std::string YesNo;
                 std::cout << "You have unsaved changes. Do you want to save them? (yes/no)\n";
@@ -537,7 +532,7 @@ int main()
                     save(fileName,figures);
             }
             fileName.clear();
-            for(auto f : figures)
+            for(Figure* f : figures)
                 delete f;
             figures.clear();
             std::cout<<"\nFile closed successfully!\n";
