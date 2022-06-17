@@ -1,3 +1,4 @@
+/*! \file */ 
 #ifndef __CIRCLE_HPP
 #define __CIRCLE_HPP
 

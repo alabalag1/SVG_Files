@@ -1,3 +1,4 @@
+/*! \file */ 
 #ifndef __LINE_HPP
 #define __LINE_HPP
 

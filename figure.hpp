@@ -1,3 +1,4 @@
+/*! \file */ 
 #ifndef __FIGURE_HPP
 #define __FIGURE_HPP
 

@@ -1,3 +1,4 @@
+/*! \file */ 
 ///SVG_Files Georgi Krastev 2022
 ///https://github.com/alabalag1/SVG_Files
 
@@ -16,8 +17,10 @@
 #include "line.hpp"
 
 const unsigned MAX_SIZE = 25;
-
-void find(std::string search, char *destination, std::string source) ///Searchs for a Figure keyword and saves its value in a local variable
+/************************************************************************
+ * Searches for a Figure keyword and saves its value in a local variable
+ ***********************************************************************/
+void find(std::string search, char *destination, std::string source) 
 {
     size_t Pos1{source.find(search, 0) + search.length() + 1}; 
     size_t Pos2{source.find('"', Pos1)};
@@ -29,7 +32,10 @@ void find(std::string search, char *destination, std::string source) ///Searchs 
     destination[Pos] = '\0';
 }
 
-void create(std::vector<Figure *> &figures, bool &changes) ///Creates a Figure by user input
+/*********************************
+ * Creates a Figure by user input
+*********************************/
+void create(std::vector<Figure *> &figures, bool &changes) 
 {
     std::cout << "\nFormat for Rectangle: type x y width height fill stroke stroke-width\nFormat for Circle:    type x y r fill stroke stroke-width\nFormat for Line:      type x1 y1 x2 y2 fill stroke stroke-width\n";
     std::string type;
@@ -94,7 +100,10 @@ void create(std::vector<Figure *> &figures, bool &changes) ///Creates a Figure b
     }
 }
 
-void erase(std::vector<Figure *> &figures, bool &changes, bool openFile) ///Erases a figure by a consecutive number, entered by the user
+/***************************************************************
+ * Erases a Figure by a consecutive number, entered by the user
+***************************************************************/
+void erase(std::vector<Figure *> &figures, bool &changes, bool openFile) 
 {
     if (openFile == false)
     {
@@ -119,7 +128,10 @@ void erase(std::vector<Figure *> &figures, bool &changes, bool openFile) ///Eras
     }
 }
 
-void print(std::vector<Figure *> figures) ///Prints all figures, which are opened from file or created by the user
+/***********************************************************************
+ * Prints all Figures, which are opened from file or created by the user
+************************************************************************/
+void print(std::vector<Figure *> figures)
 {
     if (figures.empty() == false)
     {
@@ -134,7 +146,10 @@ void print(std::vector<Figure *> figures) ///Prints all figures, which are opene
         std::cout << "There are no figures!\n";
 }
 
-void close(std::string &fileName, std::vector<Figure *> &figures, bool &changes, bool &openFile) ///Closes opened file
+/*********************
+ * Closes opened file
+*********************/
+void close(std::string &fileName, std::vector<Figure *> &figures, bool &changes, bool &openFile)
 {
     if (openFile == false)
         std::cout << "No file is open!\n";
@@ -186,7 +201,10 @@ void close(std::string &fileName, std::vector<Figure *> &figures, bool &changes,
     fileName.erase(fileName.begin(),fileName.end());
 }
 
-void saveAs(std::string fileName, std::vector<Figure *> figures, bool &openFile, bool &changes) ///Saves all figures in a file, which name is by user input
+/***********************************************************
+ * Saves all Figures in a file, which name is by user input
+***********************************************************/
+void saveAs(std::string fileName, std::vector<Figure *> figures, bool &openFile, bool &changes)
 {
     std::ofstream outFile;
     outFile.open(fileName, std::ios::out);
@@ -207,7 +225,10 @@ void saveAs(std::string fileName, std::vector<Figure *> figures, bool &openFile,
     std::cout << "File " << '"' << fileName << '"' << " saved successfully!";
 }
 
-void save(std::string fileName, std::vector<Figure *> figures, bool &changes, bool openFile) ///Saves all figures in the currently opened file
+/*************************************************
+ * Saves all Figures in the currently opened file
+*************************************************/
+void save(std::string fileName, std::vector<Figure *> figures, bool &changes, bool openFile) 
 {
     std::ifstream file;
     std::string line;
@@ -254,7 +275,10 @@ void save(std::string fileName, std::vector<Figure *> figures, bool &changes, bo
     }
 }
 
-float convertToFloat(char *str) ///Converts string to float
+/***************************
+ * Converts string to float
+***************************/
+float convertToFloat(char *str)
 {
     std::stringstream stream;
     stream << str;
@@ -265,8 +289,10 @@ float convertToFloat(char *str) ///Converts string to float
 
 int main()
 {
-    ///A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
-    ///If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
+    /******************************************************************************************************************************
+    * A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
+    * If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
+    *******************************************************************************************************************************/
     std::vector<Figure *> figures;
     std::string operation;
     bool onExit{0};
@@ -335,16 +361,19 @@ int main()
                     openFile = true;
                     bool foundSVG = false;
                     line.clear();
-                    while (foundSVG == false) ///Line by line searching for each and every Figure and its properties
+                    /**********************************************************************
+                     * Line by line searching for each and every Figure and its properties
+                    **********************************************************************/
+                    while (foundSVG == false) 
                     {
-                        //!!! line in line.find and getline(file,line) is different from the object 'Line' !!!
-                        if (line.find("</svg>", 0) != std::string::npos) ///Used stackoverflow for this snippet of code for finding where figures' code starts
+                        //line in line.find and getline(file,line) is different from the object 'Line' !!!
+                        if (line.find("</svg>", 0) != std::string::npos) //Used stackoverflow for this snippet of code for finding where figures' code starts
                             foundSVG = true;
                         else
                         {
-                            if (line.find("rect", 0) != std::string::npos) ///Searching for rectangles in the file
+                            if (line.find("rect", 0) != std::string::npos) //Searching for rectangles in the file
                             {
-                                char x[MAX_SIZE];  ///Char arrays is used even for the numeric variables, so that the search function could be used for them
+                                char x[MAX_SIZE];  //Char arrays are used even for the numeric variables, so that the search function could be used for them
                                 char y[MAX_SIZE];
                                 char width[MAX_SIZE];
                                 char heigth[MAX_SIZE];
@@ -466,7 +495,7 @@ int main()
                                 figures.push_back(new Line("line", convertToFloat(x1), convertToFloat(y1), convertToFloat(x2), convertToFloat(y2), fill, stroke, convertToFloat(strokeWidth)));
                             }
                         }
-                        getline(file, line); ///Line by line searching
+                        getline(file, line);
                     }
                     file.close();
                 }
@@ -512,7 +541,7 @@ int main()
             std::cin >> fileN;
             saveAs(fileN, figures, openFile, changes);
         }
-        else if (operation == "translate") ///Translates figure
+        else if (operation == "translate") //Translates figure
         {
             if (figures.size() != 0)
             {

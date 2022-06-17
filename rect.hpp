@@ -1,3 +1,4 @@
+/*! \file */ 
 #ifndef __RECT_HPP
 #define __RECT_HPP
 
