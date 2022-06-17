@@ -4,7 +4,7 @@ Parsing SVG files to objects in C++, giving the ability to easily modify them.
 
 ## Features
 
-* Open ingfiles  
+* Opening files  
 * Closing files  
 * Save and Save As files  
 * Printing all Figures  
