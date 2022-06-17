@@ -306,7 +306,7 @@ int main()
                 onExit = true;
             }
         }
-        else if (operation == "open") //Open isn't in its own void function because other functions couldn't be used
+        else if (operation == "open") //Open isn't in its own void function because other functions cannot be used
         {
             if (openFile == true)
             {
@@ -335,7 +335,7 @@ int main()
                     openFile = true;
                     bool foundSVG = false;
                     line.clear();
-                    while (foundSVG == false) ///Line by line searching
+                    while (foundSVG == false) ///Line by line searching for each and every Figure and its properties
                     {
                         //!!! line in line.find and getline(file,line) is different from the object 'Line' !!!
                         if (line.find("</svg>", 0) != std::string::npos) ///Used stackoverflow for this snippet of code for finding where figures' code starts
@@ -344,7 +344,7 @@ int main()
                         {
                             if (line.find("rect", 0) != std::string::npos) ///Searching for rectangles in the file
                             {
-                                char x[MAX_SIZE];
+                                char x[MAX_SIZE];  ///Char arrays is used even for the numeric variables, so that the search function could be used for them
                                 char y[MAX_SIZE];
                                 char width[MAX_SIZE];
                                 char heigth[MAX_SIZE];
@@ -577,6 +577,10 @@ int main()
                 std::cout << "There are no figures!\n";
                 std::cin.ignore(1024, '\n');
             }
+        }
+        else if (operation == "about")
+        {
+            std::cout << "\nGeorgi Krastev\nStudent at FMI\n";
         }
         else std::cout << "Invalid command!\n";
     }
