@@ -1,9 +1,13 @@
+///SVG_Files Georgi Krastev 2022
+///https://github.com/alabalag1/SVG_Files
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <sstream>
-#include<cstdio>
+#include <cstdio>
 #include <memory>
 
 #include "figure.hpp"
@@ -13,7 +17,19 @@
 
 const unsigned MAX_SIZE = 25;
 
-void create(std::vector<Figure*>& figures, bool& changes)
+void find(std::string search, char *destination, std::string source) ///Searchs for a Figure keyword and saves its value in a local variable
+{
+    size_t Pos1{source.find(search, 0) + search.length() + 1}; 
+    size_t Pos2{source.find('"', Pos1)};
+    size_t Pos{Pos2 - Pos1};
+    for (size_t i = 0; i < Pos + 1 && source.find(search, 0) != std::string::npos; i++)
+    {
+        destination[i] = source[Pos1++];
+    }
+    destination[Pos] = '\0';
+}
+
+void create(std::vector<Figure *> &figures, bool &changes) ///Creates a Figure by user input
 {
     std::cout << "\nFormat for Rectangle: type x y width height fill stroke stroke-width\nFormat for Circle:    type x y r fill stroke stroke-width\nFormat for Line:      type x1 y1 x2 y2 fill stroke stroke-width\n";
     std::string type;
@@ -72,19 +88,22 @@ void create(std::vector<Figure*>& figures, bool& changes)
         std::cout << "Successfully created a " << type << " (" << figures.size() << ") !\n";
     }
     else
+    {
         std::cout << "\nInvalid Figure!";
+        std::cin.ignore(1024, '\n');
+    }
 }
 
-void erase(std::vector<Figure*>& figures, bool& changes, bool openFile)
+void erase(std::vector<Figure *> &figures, bool &changes, bool openFile) ///Erases a figure by a consecutive number, entered by the user
 {
-    if(openFile == false)
+    if (openFile == false)
     {
         std::cout << "No file is open!\n";
-        std::cin.ignore();
+        std::cin.ignore(1024,'\n');
     }
     else
     {
-        int numberToErase{0};
+        unsigned numberToErase{0};
         std::cin >> numberToErase;
         --numberToErase;
         if (numberToErase > figures.size())
@@ -100,7 +119,7 @@ void erase(std::vector<Figure*>& figures, bool& changes, bool openFile)
     }
 }
 
-void print(std::vector<Figure*> figures)
+void print(std::vector<Figure *> figures) ///Prints all figures, which are opened from file or created by the user
 {
     if (figures.empty() == false)
     {
@@ -115,71 +134,62 @@ void print(std::vector<Figure*> figures)
         std::cout << "There are no figures!\n";
 }
 
-void close(std::string& fileName, std::vector<Figure*>& figures, bool& changes, bool& openFile)
+void close(std::string &fileName, std::vector<Figure *> &figures, bool &changes, bool &openFile) ///Closes opened file
 {
-    if(openFile == false)
+    if (openFile == false)
         std::cout << "No file is open!\n";
-    else
+    else if (changes == true)
     {
-        if (changes == true)
+        std::string YesNo;
+        std::cout << "You have unsaved changes. Do you want to save them? (yes/no): ";
+        std::cin >> YesNo;
+        if (YesNo == "yes")
         {
-            std::string YesNo;
-            std::cout << "You have unsaved changes. Do you want to save them? (yes/no): ";
-            std::cin >> YesNo;
-            if(YesNo == "yes")
+            std::ifstream file;
+            std::string line;
+            file.open(fileName, std::ios::in);
+            std::ofstream outFile("temp.txt");
+            bool foundSVG = false;
+            while (getline(file, line) && foundSVG == false)
             {
-                std::ifstream file;
-                std::string line;
-                file.open(fileName, std::ios::in);
-                std::ofstream outFile("temp.txt");
-                if (!file.is_open())
+                if (line.find("<svg>", 0) != std::string::npos)
                 {
-                    std::cout << "\nError when opening file!\n";
+                    outFile << "<svg>\n";
+                    for (size_t i = 0; i < figures.size(); i++)
+                    {
+                        outFile << "<";
+                        figures[i]->printForSaving(outFile);
+                        outFile << " />\n";
+                    }
+                    outFile << "</svg>";
+                    foundSVG = true;
                 }
                 else
-                {
-                    bool foundSVG = false;
-                    while (getline(file, line) && foundSVG == false)
-                    {
-                        if(line.find("<svg>",0) != std::string::npos)
-                        {
-                            outFile << "<svg>\n";
-                            for (size_t i = 0; i < figures.size(); i++)
-                            {
-                                outFile << "<";
-                                figures[i]->printForSaving(outFile);
-                                outFile << " />\n";
-                            }
-                            outFile << "</svg>";
-                            foundSVG = true;
-                        }
-                        else
-                            outFile << line << std::endl;
-                    }
-                }
-                file.close();
-                outFile.close();
-                char* fileN = new char[fileName.length() + 1];
-                strcpy(fileN, fileName.c_str());
-                remove(fileN);
-                rename("temp.txt", fileN);
-                delete[] fileN;
-                std::cout << "Changes saved successfully!";
+                    outFile << line << std::endl;
             }
+            file.close();
+            outFile.close();
+            char *fileN = new char[fileName.length() + 1];
+            strcpy(fileN, fileName.c_str());
+            remove(fileN);
+            rename("temp.txt", fileN);
+            delete[] fileN;
+            std::cout << "Changes saved successfully!";
+            std::cout << "\nFile " << '"' << fileName << '"' <<" closed successfully!\n";
         }
-        fileName.clear();
-        for(Figure* f : figures)
-            delete f;
-        figures.clear();
-        openFile = false;
-        std::cout<<"\nFile closed successfully!\n";
     }
+    for (size_t i = 0; i < figures.size(); i++)
+        delete figures[i];
+    figures.clear();
+    openFile = false;
+    std::cout << "\nFile " << '"' << fileName << '"' <<" closed successfully!\n";
+    fileName.erase(fileName.begin(),fileName.end());
 }
 
-void saveAs(std::string fileName, std::vector<Figure*> figures, bool& openFile, bool& changes)
+void saveAs(std::string fileName, std::vector<Figure *> figures, bool &openFile, bool &changes) ///Saves all figures in a file, which name is by user input
 {
     std::ofstream outFile;
-    outFile.open(fileName,std::ios::out);
+    outFile.open(fileName, std::ios::out);
     outFile << "<?xml version=" << '"' << "1.0" << '"' << " standalone=" << '"' << "no" << '"' << "?>\n"
             << "<!DOCTYPE svg PUBLIC " << '"' << "-//W3C//DTD SVG 1.1//EN" << '"' << "\n"
             << '"' << "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" << '"'
@@ -194,16 +204,16 @@ void saveAs(std::string fileName, std::vector<Figure*> figures, bool& openFile, 
     outFile.close();
     openFile = true;
     changes = false;
-    std::cout << "File " << fileName << " saved successfully!";
+    std::cout << "File " << '"' << fileName << '"' << " saved successfully!";
 }
 
-void save(std::string fileName, std::vector<Figure*> figures, bool& changes, bool openFile)
+void save(std::string fileName, std::vector<Figure *> figures, bool &changes, bool openFile) ///Saves all figures in the currently opened file
 {
     std::ifstream file;
     std::string line;
     file.open(fileName, std::ios::in);
     std::ofstream outFile("temp.txt");
-    if(openFile == false)
+    if (openFile == false)
         std::cout << "No file is open! If you created figures, use the command 'saveas'!\n";
     else
     {
@@ -216,7 +226,7 @@ void save(std::string fileName, std::vector<Figure*> figures, bool& changes, boo
             bool foundSVG = false;
             while (getline(file, line) && foundSVG == false)
             {
-                if(line.find("<svg>",0) != std::string::npos)
+                if (line.find("<svg>", 0) != std::string::npos)
                 {
                     outFile << "<svg>\n";
                     for (size_t i = 0; i < figures.size(); i++)
@@ -234,17 +244,17 @@ void save(std::string fileName, std::vector<Figure*> figures, bool& changes, boo
         }
         file.close();
         outFile.close();
-        char* fileN = new char[fileName.length() + 1];
+        char *fileN = new char[fileName.length() + 1];
         strcpy(fileN, fileName.c_str());
         remove(fileN);
         rename("temp.txt", fileN);
         delete[] fileN;
         changes = false;
-        std::cout << "File " << fileName << " saved successfully!";
+        std::cout << "File " << '"' << fileName << '"' << " saved successfully!";
     }
 }
 
-float convertToFloat(char* str)
+float convertToFloat(char *str) ///Converts string to float
 {
     std::stringstream stream;
     stream << str;
@@ -255,7 +265,9 @@ float convertToFloat(char* str)
 
 int main()
 {
-    std::vector<Figure*> figures;
+    ///A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
+    ///If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
+    std::vector<Figure *> figures;
     std::string operation;
     bool onExit{0};
     std::string fileName;
@@ -269,17 +281,17 @@ int main()
         std::cin >> operation;
         if (operation == "exit")
         {
-            if(openFile == true)
+            if (openFile == true)
             {
                 std::string YesNo;
                 std::cout << "\nThere is an open file! You need to close it before you exit! Do you want to close it? (yes/no): ";
                 std::cin >> YesNo;
-                if(YesNo == "yes")
+                if (YesNo == "yes")
                 {
-                    close(fileName, figures, changes,openFile);
+                    close(fileName, figures, changes, openFile);
                     openFile = false;
-                    for(auto f : figures)
-                    delete f;
+                    for (auto f : figures)
+                        delete f;
                     figures.clear();
                     std::cout << "Goodbye! :)\n\n";
                     onExit = true;
@@ -287,23 +299,24 @@ int main()
             }
             else
             {
-                for(auto f : figures)
+                for (auto f : figures)
                     delete f;
                 figures.clear();
-                std::cout << "Goodbye! :)\n\n";
+                std::cout << "\nGoodbye! :)\n\n";
                 onExit = true;
             }
         }
-        else if (operation == "open")
+        else if (operation == "open") //Open isn't in its own void function because other functions couldn't be used
         {
-            if(openFile == true)
+            if (openFile == true)
             {
+                std::cin.ignore(1024, '\n');
                 std::string YesNo;
                 std::cout << "There is another open file! You need to close it before you open another one! Do you want to close it? (yes/no): ";
                 std::cin >> YesNo;
-                if(YesNo == "yes")
+                if (YesNo == "yes")
                 {
-                    close(fileName,figures,changes,openFile);
+                    close(fileName, figures, changes, openFile);
                     openFile = false;
                 }
             }
@@ -318,25 +331,19 @@ int main()
                 }
                 else
                 {
-                    std::cout << "Successfully opened " << fileName << "!\n";
+                    std::cout << "Successfully opened " << '"' << fileName << '"' << "!\n";
                     openFile = true;
-                    /* while (getline(file, line) && foundSVG == false)    // Used stackoverflow for this snippet of code for moving the cursor to where figures in svg file are
-                    {                                                   //
-                        if (line.find("<svg>", 0) != std::string::npos) //
-                            foundSVG = true;
-                    } */
                     bool foundSVG = false;
-                    while (foundSVG == false)
+                    line.clear();
+                    while (foundSVG == false) ///Line by line searching
                     {
-                        //!!! line in line.find and getline(file,line) is different from the object 'line' !!!
-                        if (line.find("</svg>", 0) != std::string::npos)
+                        //!!! line in line.find and getline(file,line) is different from the object 'Line' !!!
+                        if (line.find("</svg>", 0) != std::string::npos) ///Used stackoverflow for this snippet of code for finding where figures' code starts
                             foundSVG = true;
                         else
                         {
-                            if (line.find("rect", 0) != std::string::npos) // rectangle
+                            if (line.find("rect", 0) != std::string::npos) ///Searching for rectangles in the file
                             {
-                                std::string type = "rect";
-    
                                 char x[MAX_SIZE];
                                 char y[MAX_SIZE];
                                 char width[MAX_SIZE];
@@ -344,106 +351,41 @@ int main()
                                 char fill[MAX_SIZE];
                                 char stroke[MAX_SIZE];
                                 char strokeWidth[MAX_SIZE];
-    
-                                // X
-                                size_t xPos1{line.find("x=", 0) + 3};
-                                size_t xPos2{line.find('"', xPos1)};
-                                size_t xPos{xPos2 - xPos1};
-                                // char x[xPos + 1];
-                                for (size_t i = 0; i < xPos + 1 && (line.find("x", 0) != std::string::npos); i++)
-                                {
-                                    x[i] = line[xPos1++];
-                                }
-                                x[xPos] = '\0';
-    
-                                // Y
-                                size_t yPos1{line.find("y=", 0) + 3};
-                                size_t yPos2{line.find('"', yPos1)};
-                                size_t yPos{yPos2 - yPos1};
-                                // char y[yPos + 1];
-                                for (size_t i = 0; i < yPos + 1 && (line.find("y=", 0) != std::string::npos); i++)
-                                {
-                                    y[i] = line[yPos1++];
-                                }
-                                y[yPos] = '\0';
-    
-                                // Width
-                                size_t widthPos1{line.find("width=", 0) + 7};
-                                size_t widthPos2{line.find('"', widthPos1)};
-                                size_t widthPos{widthPos2 - widthPos1};
-                                // char width[widthPos +1];
-                                for (size_t i = 0; i < widthPos + 1 && (line.find("width=", 0) != std::string::npos); i++)
-                                {
-                                    width[i] = line[widthPos1++];
-                                }
-                                width[widthPos] = '\0';
-    
-                                // Heigth
-                                size_t heigthPos1{line.find("height=", 0) + 8};
-                                size_t heigthPos2{line.find('"', heigthPos1)};
-                                size_t heigthPos{heigthPos2 - heigthPos1};
-                                // char heigth[heigthPos + 1];
-                                for (size_t i = 0; i < heigthPos + 1 && (line.find("height=", 0) != std::string::npos); i++)
-                                {
-                                    heigth[i] = line[heigthPos1++];
-                                }
-                                heigth[heigthPos] = '\0';
-    
-                                if (line.find("fill", 0) != std::string::npos)
-                                {
-                                    // Fill
-                                    size_t FillPos1{line.find("fill=", 0) + 6};
-                                    size_t FillPos2{line.find('"', FillPos1)};
-                                    size_t FillPos{FillPos2 - FillPos1};
-                                    // char fill[FillPos + 1];
-                                    for (size_t i = 0; i < FillPos + 1 && (line.find("fill=", 0) != std::string::npos); i++)
-                                    {
-                                        fill[i] = line[FillPos1++];
-                                    }
-                                    fill[FillPos] = '\0';
-                                    // line.copy(fill, FillPos2 - FillPos1, FillPos1);
-                                }
+
+                                //X
+                                find("x=", x, line);
+
+                                //Y
+                                find("y=", y, line);
+
+                                //Width
+                                find("width=", width, line);
+
+                                //Height
+                                find("height=", heigth, line);
+
+                                //Fill
+                                if (line.find("fill=", 0) != std::string::npos)
+                                    find("fill=", fill, line);
                                 else
                                     strcpy(fill, "none");
-    
+
+                                //Stroke
                                 if (line.find("stroke=", 0) != std::string::npos)
-                                {
-                                    // Stroke
-                                    size_t StrokePos1{line.find("stroke=", 0) + 8};
-                                    size_t StrokePos2{line.find('"', StrokePos1)};
-                                    size_t StrokePos{StrokePos2 - StrokePos1};
-                                    // char stroke[StrokePos + 1];
-                                    for (size_t i = 0; i < StrokePos + 1 && (line.find("stroke=", 0) != std::string::npos); i++)
-                                    {
-                                        stroke[i] = line[StrokePos1++];
-                                    }
-                                    stroke[StrokePos] = '\0';
-                                    // line.copy(stroke, StrokePos2 - StrokePos1, StrokePos1);
-                                }
+                                    find("stroke=", stroke, line);
                                 else
                                     strcpy(stroke, "none");
-    
+
+                                //Stroke-Width
                                 if (line.find("stroke-width=", 0) != std::string::npos)
-                                {
-                                    // StrokeWidth
-                                    size_t strokeWidthPos1{line.find("stroke-width=", 0) + 14};
-                                    size_t strokeWidthPos2{line.find('"', strokeWidthPos1)};
-                                    size_t strokeWidthPos{strokeWidthPos2 - strokeWidthPos1};
-                                    // char strokeWidth[strokeWidthPos + 1];
-                                    for (size_t i = 0; i < strokeWidthPos + 1 && (line.find("stroke-width", 0) != std::string::npos); i++)
-                                    {
-                                        strokeWidth[i] = line[strokeWidthPos1++];
-                                    }
-                                    strokeWidth[strokeWidthPos] = '\0';
-                                }
+                                    find("stroke-width=", strokeWidth, line);
                                 else
                                     strcpy(strokeWidth, "0");
-    
-                                // Rectangle rect("rectangle", convertToFloat(x), convertToFloat(y), convertToFloat(width), convertToFloat(heigth), fill, stroke, convertToFloat(strokeWidth));
+
                                 figures.push_back(new Rectangle("rectangle", convertToFloat(x), convertToFloat(y), convertToFloat(width), convertToFloat(heigth), fill, stroke, convertToFloat(strokeWidth)));
                             }
-    
-                            else if (line.find("circle", 0) != std::string::npos) // circle
+
+                            else if (line.find("circle", 0) != std::string::npos) ///Searching for circles in the file
                             {
                                 char x[MAX_SIZE];
                                 char y[MAX_SIZE];
@@ -451,96 +393,38 @@ int main()
                                 char fill[MAX_SIZE];
                                 char stroke[MAX_SIZE];
                                 char strokeWidth[MAX_SIZE];
-                                std::string type = "circle";
-    
-                                // X
-                                size_t xPos1{line.find("x=", 0) + 3};
-                                size_t xPos2{line.find('"', xPos1)};
-                                size_t xPos{xPos2 - xPos1};
-                                // char x[xPos + 1];
-                                for (size_t i = 0; i < xPos + 1 && (line.find("x=", 0) != std::string::npos); i++)
-                                {
-                                    x[i] = line[xPos1++];
-                                }
-                                x[xPos] = '\0';
-    
-                                // Y
-                                size_t yPos1{line.find("y=", 0) + 3};
-                                size_t yPos2{line.find('"', yPos1)};
-                                size_t yPos{yPos2 - yPos1};
-                                // char y[yPos + 1];
-                                for (size_t i = 0; i < yPos + 1 && (line.find("y=", 0) != std::string::npos); i++)
-                                {
-                                    y[i] = line[yPos1++];
-                                }
-                                y[yPos] = '\0';
-    
-                                // R
-                                size_t rPos1{line.find("r=", 0) + 3};
-                                size_t rPos2{line.find('"', rPos1)};
-                                size_t rPos{rPos2 - rPos1};
-                                // char r[rPos + 1];
-                                for (size_t i = 0; i < rPos + 1 && (line.find("r=", 0) != std::string::npos); i++)
-                                {
-                                    r[i] = line[rPos1++];
-                                }
-                                r[rPos] = '\0';
-    
+
+                                //X
+                                find("x=", x, line);
+                                
+                                //Y
+                                find("y=", y, line);
+
+                                //R
+                                find("r=", r, line);
+
+                                //Fill
                                 if (line.find("fill", 0) != std::string::npos)
-                                {
-                                    // Fill
-                                    size_t FillPos1{line.find("fill=", 0) + 6};
-                                    size_t FillPos2{line.find('"', FillPos1)};
-                                    size_t FillPos{FillPos2 - FillPos1};
-                                    // char fill[FillPos + 1];
-                                    for (size_t i = 0; i < FillPos + 1 && (line.find("fill=", 0) != std::string::npos); i++)
-                                    {
-                                        fill[i] = line[FillPos1++];
-                                    }
-                                    fill[FillPos] = '\0';
-                                }
+                                    find("fill=", fill, line);
                                 else
                                     strcpy(fill, "none");
-    
+
+                                //Stroke
                                 if (line.find("stroke", 0) != std::string::npos)
-                                {
-                                    // Stroke
-                                    size_t StrokePos1{line.find("stroke=", 0) + 8};
-                                    size_t StrokePos2{line.find('"', StrokePos1)};
-                                    size_t StrokePos{StrokePos2 - StrokePos1};
-                                    // char stroke[StrokePos + 1];
-                                    for (size_t i = 0; i < StrokePos + 1 && (line.find("stroke=", 0) != std::string::npos); i++)
-                                    {
-                                        stroke[i] = line[StrokePos1++];
-                                    }
-                                    stroke[StrokePos] = '\0';
-                                }
+                                    find("stroke=", stroke, line);
                                 else
                                     strcpy(stroke, "none");
-    
+
+                                //Stroke-Width
                                 if (line.find("stroke-width=", 0) != std::string::npos)
-                                {
-                                    // StrokeWidth
-                                    size_t strokeWidthPos1{line.find("stroke-width=", 0) + 14};
-                                    size_t strokeWidthPos2{line.find('"', strokeWidthPos1)};
-                                    size_t strokeWidthPos{strokeWidthPos2 - strokeWidthPos1};
-                                    // char strokeWidth[strokeWidthPos + 1];
-                                    for (size_t i = 0; i < strokeWidthPos + 1 && (line.find("stroke-width=", 0) != std::string::npos); i++)
-                                    {
-                                        strokeWidth[i] = line[strokeWidthPos1++];
-                                    }
-                                    strokeWidth[strokeWidthPos] = '\0';
-                                }
+                                    find("stroke-width=", strokeWidth, line);
                                 else
                                     strcpy(strokeWidth, "0");
-    
-                                // Circle circ("circle", convertToFloat(x), convertToFloat(y), convertToFloat(r), fill, stroke, convertToFloat(strokeWidth));
+
                                 figures.push_back(new Circle("circle", convertToFloat(x), convertToFloat(y), convertToFloat(r), fill, stroke, convertToFloat(strokeWidth)));
                             }
-                            else if (line.find("line", 0) != std::string::npos) // line
+                            else if (line.find("line", 0) != std::string::npos) ///Searching for lines in the file
                             {
-                                std::string type = "line";
-    
                                 char x1[MAX_SIZE];
                                 char y1[MAX_SIZE];
                                 char x2[MAX_SIZE];
@@ -548,104 +432,41 @@ int main()
                                 char fill[MAX_SIZE];
                                 char stroke[MAX_SIZE];
                                 char strokeWidth[MAX_SIZE];
-    
-                                // X1
-                                size_t x1Pos1{line.find("x1=", 0) + 4};
-                                size_t x1Pos2{line.find('"', x1Pos1)};
-                                size_t x1Pos{x1Pos2 - x1Pos1};
-                                // char x1[x1Pos + 1];
-                                for (size_t i = 0; i < x1Pos + 1 && (line.find("x1=", 0) != std::string::npos); i++)
-                                {
-                                    x1[i] = line[x1Pos1++];
-                                }
-                                x1[x1Pos] = '\0';
-    
-                                // Y1
-                                size_t y1Pos1{line.find("y1=", 0) + 4};
-                                size_t y1Pos2{line.find('"', y1Pos1)};
-                                size_t y1Pos{y1Pos2 - y1Pos1};
-                                // char y1[y1Pos + 1];
-                                for (size_t i = 0; i < y1Pos + 1 && (line.find("y1=", 0) != std::string::npos); i++)
-                                {
-                                    y1[i] = line[y1Pos1++];
-                                }
-                                y1[y1Pos] = '\0';
-    
+
+                                //X1
+                                find("x1=",x1,line);
+
+                                //Y1
+                                find("y1=",y1,line);
+
                                 // X2
-                                size_t x2Pos1{line.find("x2=", 0) + 4};
-                                size_t x2Pos2{line.find('"', x2Pos1)};
-                                size_t x2Pos{x2Pos2 - x2Pos1};
-                                // char x2[x2Pos + 1];
-                                for (size_t i = 0; i < x2Pos + 1 && (line.find("x2=", 0) != std::string::npos); i++)
-                                {
-                                    x2[i] = line[x2Pos1++];
-                                }
-                                x2[x2Pos] = '\0';
-    
-                                // Y2
-                                size_t y2Pos1{line.find("y2=", 0) + 4};
-                                size_t y2Pos2{line.find('"', y2Pos1)};
-                                size_t y2Pos{y2Pos2 - y2Pos1};
-                                // char y2[y2Pos + 1];
-                                for (size_t i = 0; i < y2Pos + 1 && (line.find("y2=", 0) != std::string::npos); i++)
-                                {
-                                    y2[i] = line[y2Pos1++];
-                                }
-                                y2[y2Pos] = '\0';
-    
+                                find("x2=", x2, line);
+
+                                //Y2
+                                find("y2=", y2, line);
+
+                                //Fill
                                 if (line.find("fill", 0) != std::string::npos)
-                                {
-                                    // Fill
-                                    size_t FillPos1{line.find("fill=", 0) + 6};
-                                    size_t FillPos2{line.find('"', FillPos1)};
-                                    size_t FillPos{FillPos2 - FillPos1};
-                                    // char fill[FillPos + 1];
-                                    for (size_t i = 0; i < FillPos + 1 && (line.find("fill=", 0) != std::string::npos); i++)
-                                    {
-                                        fill[i] = line[FillPos1++];
-                                    }
-                                    fill[FillPos] = '\0';
-                                }
+                                    find("fill=", fill, line);
                                 else
                                     strcpy(fill, "none");
-    
+
+                                //Stroke
                                 if (line.find("stroke", 0) != std::string::npos)
-                                {
-                                    // Stroke
-                                    size_t StrokePos1{line.find("stroke=", 0) + 8};
-                                    size_t StrokePos2{line.find('"', StrokePos1)};
-                                    size_t StrokePos{StrokePos2 - StrokePos1};
-                                    // char stroke[StrokePos + 1];
-                                    for (size_t i = 0; i < StrokePos + 1 && (line.find("stroke=", 0) != std::string::npos); i++)
-                                    {
-                                        stroke[i] = line[StrokePos1++];
-                                    }
-                                    stroke[StrokePos] = '\0';
-                                }
+                                    find("stroke=", stroke, line);
                                 else
                                     strcpy(stroke, "none");
-    
+
+                                //Stroke-Width
                                 if (line.find("stroke-width=", 0) != std::string::npos)
-                                {
-                                    // StrokeWidth
-                                    size_t strokeWidthPos1{line.find("stroke-width=", 0) + 14};
-                                    size_t strokeWidthPos2{line.find('"', strokeWidthPos1)};
-                                    size_t strokeWidthPos{strokeWidthPos2 - strokeWidthPos1};
-                                    // char strokeWidth[strokeWidthPos + 1];
-                                    for (size_t i = 0; i < strokeWidthPos + 1 && (line.find("stroke-width=", 0) != std::string::npos); i++)
-                                    {
-                                        strokeWidth[i] = line[strokeWidthPos1++];
-                                    }
-                                    strokeWidth[strokeWidthPos] = '\0';
-                                }
+                                    find("stroke-width=", strokeWidth, line);
                                 else
                                     strcpy(strokeWidth, "0");
-    
-                                // Line lin("line", convertToFloat(x1), convertToFloat(y1), convertToFloat(x2), convertToFloat(y2), fill, stroke, convertToFloat(strokeWidth));
+
                                 figures.push_back(new Line("line", convertToFloat(x1), convertToFloat(y1), convertToFloat(x2), convertToFloat(y2), fill, stroke, convertToFloat(strokeWidth)));
                             }
                         }
-                        getline(file, line);
+                        getline(file, line); ///Line by line searching
                     }
                     file.close();
                 }
@@ -657,7 +478,7 @@ int main()
         }
         else if (operation == "erase")
         {
-            erase(figures,changes, openFile);
+            erase(figures, changes, openFile);
         }
         else if (operation == "create")
         {
@@ -691,77 +512,72 @@ int main()
             std::cin >> fileN;
             saveAs(fileN, figures, openFile, changes);
         }
-        else if (operation == "translate")
+        else if (operation == "translate") ///Translates figure
         {
-            std::string addition;
-            std::getline(std::cin, addition);
-            char horizontal[MAX_SIZE];
-            char vertical[MAX_SIZE];
-            char figureNumber[MAX_SIZE];
-            if ((addition.find("vertical=", 0) != std::string::npos) && (addition.find("horizontal=", 0) != std::string::npos))
+            if (figures.size() != 0)
             {
-                size_t hFirstPos{addition.find("horizontal=", 0) + 11};
-                size_t hLastPos{0};
-                if(addition.find(' ',hFirstPos) == std::string::npos)
-                    hLastPos = addition.length();
-                else
-                    hLastPos = addition.find(' ', hFirstPos);
-                size_t hPos{hLastPos - hFirstPos};
-                size_t vFirstPos{addition.find("vertical=", 0) + 9};
-                size_t vLastPos{0};
-                if(addition.find(' ',vFirstPos) == std::string::npos)
-                    vLastPos = addition.length();
-                else
-                    vLastPos = addition.find(' ', vFirstPos);
-                size_t vPos{vLastPos - vFirstPos};
-                for (size_t i = 0; i < vPos; i++)
-                    vertical[i] = addition[vFirstPos++];
-                for (size_t i = 0; i < hPos; i++)
-                    horizontal[i] = addition[hFirstPos++];
-                vertical[vPos] = '\0';
-                horizontal[hPos] = '\0';
+                std::string addition;
+                std::getline(std::cin, addition);
+                char horizontal[MAX_SIZE];
+                char vertical[MAX_SIZE];
+                char figureNumber[MAX_SIZE];
+                if ((addition.find("vertical=", 0) != std::string::npos) && (addition.find("horizontal=", 0) != std::string::npos))
+                {
+                    size_t hFirstPos{addition.find("horizontal=", 0) + 11};
+                    size_t hLastPos{0};
+                    if (addition.find(' ', hFirstPos) == std::string::npos)
+                        hLastPos = addition.length();
+                    else
+                        hLastPos = addition.find(' ', hFirstPos);
+                    size_t hPos{hLastPos - hFirstPos};
+                    size_t vFirstPos{addition.find("vertical=", 0) + 9};
+                    size_t vLastPos{0};
+                    if (addition.find(' ', vFirstPos) == std::string::npos)
+                        vLastPos = addition.length();
+                    else
+                        vLastPos = addition.find(' ', vFirstPos);
+                    size_t vPos{vLastPos - vFirstPos};
+                    for (size_t i = 0; i < vPos; i++)
+                        vertical[i] = addition[vFirstPos++];
+                    for (size_t i = 0; i < hPos; i++)
+                        horizontal[i] = addition[hFirstPos++];
+                    vertical[vPos] = '\0';
+                    horizontal[hPos] = '\0';
+                    size_t lastPos = (vLastPos > hLastPos ? vLastPos : hLastPos);
+                    char test = addition[addition.length() - 1];
+                    while ((addition.length() - 1 >= lastPos) && (addition[addition.length() - 1] == ' '))
+                    {
+                        addition.resize(addition.size() - 1);
+                    }
+                    if ((addition[lastPos + 1] >= '0') && (addition[lastPos + 1] <= '9'))
+                    {
 
-                if ((addition[vLastPos + 1] >= '0' && addition[vLastPos + 1] <= '9') || (addition[hLastPos + 1] >= '0' && addition[hLastPos + 1] <= '9'))
-                {
-                    
-                    size_t figureNumberLastPos = addition.find_last_not_of(' ');
-                    size_t figureNumberFirstPos = addition.rfind(' ',figureNumberLastPos) + 1;
-                    size_t figureNumberPos = figureNumberLastPos - figureNumberFirstPos;
-                    for (size_t i = 0; i < figureNumberPos; i++)
-                        figureNumber[i] = addition[figureNumberFirstPos++];
-                    figureNumber[figureNumberPos] = '\0';
-                    size_t figNum = convertToFloat(figureNumber) - 1;
-                    figures[convertToFloat(figureNumber) - 1]->translate(convertToFloat(horizontal), convertToFloat(vertical));
-                    std::cout << "Translated " << figures[convertToFloat(figureNumber) - 1]->getType() << " ("<<figureNumber<<") " 
-                            << "by horizontal: " << horizontal << " and vertical: " << vertical;
-
-                }
- /*                else if(addition[hLastPos + 1] == ' ')
-                {
-                    size_t figureNumberFirstPos = hLastPos + 2;
-                    size_t figureNumberLastPos = addition.find_last_of(addition,figureNumberFirstPos);
-                    size_t figureNumberPos = figureNumberLastPos - figureNumberFirstPos;
-                    for (size_t i = 0; i < figureNumberPos; i++)
-                        figureNumber[i] = addition[figureNumberFirstPos++];
-                    figures[convertToFloat(figureNumber)]->translate(convertToFloat(horizontal), convertToFloat(vertical));
-                    std::cout << "Translated " << figures[convertToFloat(figureNumber)]->getType() << " ("<<figureNumber<<") " 
-                            << "by horizontal: " << horizontal << " and vertical: " << vertical;
-                } */
-                else
-                {
+                        size_t figureNumberLastPos = addition.length();
+                        size_t figureNumberFirstPos = addition.rfind(' ', figureNumberLastPos) + 1;
+                        size_t figureNumberPos = figureNumberLastPos - figureNumberFirstPos;
+                        for (size_t i = 0; i < figureNumberPos + 1; i++)
+                            figureNumber[i] = addition[figureNumberFirstPos++];
+                        figureNumber[figureNumberPos] = '\0';
+                        figures[convertToFloat(figureNumber) - 1]->translate(convertToFloat(horizontal), convertToFloat(vertical));
+                        std::cout << "Translated " << figures[convertToFloat(figureNumber) - 1]->getType() << " (" << figureNumber << ") "
+                                  << "by horizontal: " << horizontal << " and vertical: " << vertical;
+                    }
+                    else
+                    {
                     for (size_t i = 0; i < figures.size(); i++)
                         figures[i]->translate(convertToFloat(horizontal), convertToFloat(vertical));
                     std::cout << "Translated all figures by horizontal: " << horizontal << " and vertical: " << vertical;
+                    }
+                    changes = true;
                 }
-                changes = true;
+                else std::cout << "Invalid option!\n";
             }
             else
-                std::cout << "Invalid option!\n";
-            // Unfortunately couldn't use this code, because i'd have to change the whole way the interactive commands work ;(
+            {
+                std::cout << "There are no figures!\n";
+                std::cin.ignore(1024, '\n');
+            }
         }
-        else
-            std::cout << "Invalid command!\n";
-
-        //TODO: translate operation == stringstream horizontal= vertical=
+        else std::cout << "Invalid command!\n";
     }
 }
