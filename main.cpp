@@ -1,8 +1,10 @@
-/*! \file */ 
-///SVG_Files Georgi Krastev 2022
-///https://github.com/alabalag1/SVG_Files
+/*! @file main.cpp 
+ *  A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
+ *  If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
+ */ 
 
 
+/// \cond
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -17,6 +19,16 @@
 #include "line.hpp"
 
 const unsigned MAX_SIZE = 25;
+/// \endcond
+
+/******************************************************************************************************************************@file main.cpp
+ * A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
+ * If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
+ * SVG_Files Georgi Krastev 2022
+ * https://github.com/alabalag1/SVG_Files
+*******************************************************************************************************************************/
+
+
 /************************************************************************
  * Searches for a Figure keyword and saves its value in a local variable
  ***********************************************************************/
@@ -287,12 +299,10 @@ float convertToFloat(char *str)
     return buffer;
 }
 
+
+/// \cond
 int main()
 {
-    /******************************************************************************************************************************
-    * A vector of pointers to Figure objects was used to store all the figures that are created or read and later saved in a file.
-    * If a normal Figure object was used instead of a pointer to Figure object for the vector, there would be object slicing.
-    *******************************************************************************************************************************/
     std::vector<Figure *> figures;
     std::string operation;
     bool onExit{0};
@@ -614,3 +624,4 @@ int main()
         else std::cout << "Invalid command!\n";
     }
 }
+/// \endcond 
