@@ -1,4 +1,4 @@
-# <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/SVG_Logo.svg/1024px-SVG_Logo.svg.png" width=75 height=75> SVG_Files
+# <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/SVG_Logo.svg/1024px-SVG_Logo.svg.png" width=75 height=75>Files
 
 ## Basic info		
 Parsing SVG files to objects in C++, giving the ability to easily modify them. This little program is for people who want to make basic changes to SVG files without even having to open them. It has 
