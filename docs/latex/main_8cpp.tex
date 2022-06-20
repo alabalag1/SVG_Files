@@ -1,0 +1,33 @@
+\hypertarget{main_8cpp}{}\doxysection{main.\+cpp File Reference}
+\label{main_8cpp}\index{main.cpp@{main.cpp}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{main_8cpp_a9acc0e7be2604046e7c47d9f9bced147}\label{main_8cpp_a9acc0e7be2604046e7c47d9f9bced147}} 
+void \mbox{\hyperlink{main_8cpp_a9acc0e7be2604046e7c47d9f9bced147}{find}} (std\+::string search, char $\ast$destination, std\+::string source)
+\begin{DoxyCompactList}\small\item\em Searches for a \mbox{\hyperlink{class_figure}{Figure}} keyword and saves its value in a local variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_aed66a10e407b2a8524792720ec2d2742}\label{main_8cpp_aed66a10e407b2a8524792720ec2d2742}} 
+void \mbox{\hyperlink{main_8cpp_aed66a10e407b2a8524792720ec2d2742}{create}} (std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ \&figures, bool \&changes)
+\begin{DoxyCompactList}\small\item\em Creates a \mbox{\hyperlink{class_figure}{Figure}} by user input. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_af4812a03ca7ecb671f3c73f08eca3bce}\label{main_8cpp_af4812a03ca7ecb671f3c73f08eca3bce}} 
+void \mbox{\hyperlink{main_8cpp_af4812a03ca7ecb671f3c73f08eca3bce}{erase}} (std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ \&figures, bool \&changes, bool open\+File)
+\begin{DoxyCompactList}\small\item\em Erases a \mbox{\hyperlink{class_figure}{Figure}} by a consecutive number, entered by the user. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_a28ea0d99043680dc691a5c31696794d3}\label{main_8cpp_a28ea0d99043680dc691a5c31696794d3}} 
+void \mbox{\hyperlink{main_8cpp_a28ea0d99043680dc691a5c31696794d3}{print}} (std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ figures)
+\begin{DoxyCompactList}\small\item\em Prints all Figures, which are opened from file or created by the user. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_ac32819c50513bd9313f7dc8deb3fefd1}\label{main_8cpp_ac32819c50513bd9313f7dc8deb3fefd1}} 
+void \mbox{\hyperlink{main_8cpp_ac32819c50513bd9313f7dc8deb3fefd1}{close}} (std\+::string \&file\+Name, std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ \&figures, bool \&changes, bool \&open\+File)
+\begin{DoxyCompactList}\small\item\em Closes opened file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_a4826461965a0526843abad5d9304ff95}\label{main_8cpp_a4826461965a0526843abad5d9304ff95}} 
+void \mbox{\hyperlink{main_8cpp_a4826461965a0526843abad5d9304ff95}{save\+As}} (std\+::string file\+Name, std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ figures, bool \&open\+File, bool \&changes)
+\begin{DoxyCompactList}\small\item\em Saves all Figures in a file, which name is by user input. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_ae1c2be031ba83daa84cb10ef16303f58}\label{main_8cpp_ae1c2be031ba83daa84cb10ef16303f58}} 
+void \mbox{\hyperlink{main_8cpp_ae1c2be031ba83daa84cb10ef16303f58}{save}} (std\+::string file\+Name, std\+::vector$<$ \mbox{\hyperlink{class_figure}{Figure}} $\ast$ $>$ figures, bool \&changes, bool open\+File)
+\begin{DoxyCompactList}\small\item\em Saves all Figures in the currently opened file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{main_8cpp_a5bfda27403b9a2952e9ce4cefafd6e40}\label{main_8cpp_a5bfda27403b9a2952e9ce4cefafd6e40}} 
+float \mbox{\hyperlink{main_8cpp_a5bfda27403b9a2952e9ce4cefafd6e40}{convert\+To\+Float}} (char $\ast$str)
+\begin{DoxyCompactList}\small\item\em Converts string to float. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A vector of pointers to \mbox{\hyperlink{class_figure}{Figure}} objects was used to store all the figures that are created or read and later saved in a file. If a normal \mbox{\hyperlink{class_figure}{Figure}} object was used instead of a pointer to \mbox{\hyperlink{class_figure}{Figure}} object for the vector, there would be object slicing. 

@@ -49,7 +49,7 @@ void find(std::string search, char *destination, std::string source)
 *********************************/
 void create(std::vector<Figure *> &figures, bool &changes) 
 {
-    std::cout << "\nFormat for Rectangle: type x y width height fill stroke stroke-width\nFormat for Circle:    type x y r fill stroke stroke-width\nFormat for Line:      type x1 y1 x2 y2 fill stroke stroke-width\n";
+    std::cout << "\nFormat for Rectangle: type x y width height fill stroke stroke-width\nFormat for Circle:    type cx cy r fill stroke stroke-width\nFormat for Line:      type x1 y1 x2 y2 fill stroke stroke-width\n";
     std::string type;
     std::cin >> type;
     if (type == "rectangle")
@@ -550,6 +550,7 @@ int main()
             std::string fileN;
             std::cin >> fileN;
             saveAs(fileN, figures, openFile, changes);
+            fileName = fileN;
         }
         else if (operation == "translate") //Translates figure
         {
