@@ -117,7 +117,7 @@ void create(std::vector<Figure *> &figures, bool &changes)
 ***************************************************************/
 void erase(std::vector<Figure *> &figures, bool &changes, bool openFile) 
 {
-    if (openFile == false)
+    if (openFile == false && changes == false)
     {
         std::cout << "No file is open!\n";
         std::cin.ignore(1024,'\n');
@@ -127,7 +127,7 @@ void erase(std::vector<Figure *> &figures, bool &changes, bool openFile)
         unsigned numberToErase{0};
         std::cin >> numberToErase;
         --numberToErase;
-        if (numberToErase > figures.size())
+        if (numberToErase > figures.size() && figures.empty() == false)
         {
             std::cout << "\nThere is no figure " << numberToErase + 1 << "!\n";
         }
@@ -136,6 +136,7 @@ void erase(std::vector<Figure *> &figures, bool &changes, bool openFile)
             std::cout << "\nErased a " << figures[numberToErase]->getType() << " (" << numberToErase + 1 << ") \n";
             changes = true;
             figures.erase(figures.begin() + numberToErase);
+            delete figures[numberToErase + 1];
         }
     }
 }
